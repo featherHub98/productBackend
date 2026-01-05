@@ -1,0 +1,44 @@
+{
+  "products": [
+    {
+      "id": 10,
+      "name": "Product 4",
+      "price": "426"
+    },
+    {
+      "id": 11,
+      "name": "Product 8",
+      "price": "123"
+    },
+    {
+      "id": 12,
+      "name": "product 9",
+      "price": "999"
+    },
+    {
+      "id": 13,
+      "name": "Product 1",
+      "price": "111"
+    }
+  ],
+  "users": [
+    {
+      "id": 3,
+      "username": "test1",
+      "email": "tester@gmail.com",
+      "password": "123"
+    },
+    {
+      "id": 4,
+      "username": "test2",
+      "email": "tester2@gmail.com",
+      "password": "123"
+    },
+    {
+      "id": 5,
+      "username": "admin",
+      "email": "admin@gmail.com",
+      "password": "123"
+    }
+  ]
+}

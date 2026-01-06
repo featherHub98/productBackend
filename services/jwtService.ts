@@ -1,12 +1,10 @@
-const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken')
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-here-change-in-production';
-
-interface JwtPayload {
-  userId: number;
-  username: string;
-  email?: string;
-  role?: string;
+interface CustomJwtPayload {
+  [key: string]: any;
+  exp?: number;
+  iat?: number;
+  sub?: string;
 }
 
 const verifyToken = (req: any, res: any, next: any): void => {
@@ -25,46 +23,25 @@ const verifyToken = (req: any, res: any, next: any): void => {
   }
   
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
-    req.user = decoded;
+
+    const decoded = jwt.decode(token, { complete: true });
+    
+    if (!decoded || !decoded.payload) {
+      res.status(401).json({ message: 'Invalid token structure' });
+      return;
+    }
+
+    const payload = decoded.payload as CustomJwtPayload;
+ 
+    if (payload.exp && Date.now() >= payload.exp * 1000) {
+      res.status(401).json({ message: 'Token expired' });
+      return;
+    }
+    
+    req.user = payload;
     next();
   } catch (error: any) {
-    if (error.name === 'TokenExpiredError') {
-      res.status(401).json({ message: 'Token expired' });
-    } else if (error.name === 'JsonWebTokenError') {
-      res.status(401).json({ message: 'Invalid token' });
-    } else {
-      res.status(500).json({ message: 'Token verification failed' });
-    }
+    res.status(401).json({ message: 'Invalid token format' });
   }
 };
-
-const generateToken = (payload: JwtPayload): string => {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '24h' });
-};
-
-const generateTokenForUser = (userId: number, username: string, email?: string, role?: string): string => {
-  const payload: JwtPayload = {
-    userId,
-    username,
-    ...(email && { email }),
-    ...(role && { role })
-  };
-  
-  return generateToken(payload);
-};
-
-const decodeToken = (token: string): JwtPayload | null => {
-  try {
-    return jwt.decode(token) as JwtPayload;
-  } catch (error) {
-    return null;
-  }
-};
-
-module.exports = {
-  verifyToken,
-  generateToken,
-  generateTokenForUser,
-  decodeToken
-};
+module.exports = {verifyToken}

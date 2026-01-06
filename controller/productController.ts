@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const serviceProduct = require('../services/serviceProducts.ts');
 const jwtService = require("../services/jwtService.ts");
+const axios = require('axios')
 
 router.get('/products', jwtService.verifyToken, async (req: any, res: any) => {
   try {
@@ -212,5 +213,28 @@ router.get('/', (req: any, res: any) => {
     ]
   });
 });
+router.post('/login',async (req:any,res:any)=>{
+   let  {email,password} = req.body
+   try{const response = await axios.post('http://localhost:2000/realms/users/login', {
+        email,
+        password
+      });
+
+      const { token,refreshToken } = response.data.response;
+      console.log(token);
+      
+        return res.status(200).json({
+      response: {
+        token: token,
+        refreshToken: refreshToken
+      }
+    });}
+      
+      catch(error){
+        return error
+      }
+   
+      
+})
 
 module.exports = router;
